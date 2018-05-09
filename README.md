@@ -133,6 +133,24 @@ System.Threading.Thread.Sleep(1000);
 
 ```
 
+## Accessing CustomDimensions for the Request logging
+
+This gives you Request logging for free in ASP.NET Core (and probably regular ASP.NET but untested).
+However, it does not enrich CustomDimension with any data. You can do that with Middleware as follows:
+
+```
+    public static IApplicationBuilder AddSerilogContextToRequestTelemetry(this IApplicationBuilder builder)
+    {
+        return builder.Use(async (context, next) =>
+        {
+            var requestTelemetry = context.Features.Get<RequestTelemetry>();
+            requestTelemetry.Context.Properties['Key"] = "Value";
+            await next.Invoke();
+        });
+    }
+```
+
+
 ## Using AI Persistent Channels
 By default the Application Insights client and therefore also this Sink use an in-memory buffer of messages which are sent out periodically whenever the AI client deems necessary. This may lead to unexpected behaviour upon process termination, particularly [not all of your logged messages may have been sent and therefore be lost](https://github.com/serilog/serilog-sinks-applicationinsights/pull/9).
 
